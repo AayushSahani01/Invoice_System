@@ -29,10 +29,10 @@ export interface ClientData {
 export interface InvoiceItem {
   id?: string;
   description: string;
-  quantity: number;
-  unitPrice: number;
-  taxRate: number;
-  discount: number;
+  quantity: string;
+  unitPrice: string;
+  taxRate: string;
+  discount: string;
 }
 
 export interface InvoiceData {
