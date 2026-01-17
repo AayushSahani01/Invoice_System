@@ -1,72 +1,128 @@
 import React from 'react';
 import { CompanyData, InvoiceDetailed, Totals } from '../type';
-
+import './InvoicePreview.css';
 
 interface InvoicePreviewProps {
   companyData: CompanyData;
   invoiceData: InvoiceDetailed;
   totals: Totals;
-
 }
 
 const InvoicePreview: React.FC<InvoicePreviewProps> = ({ companyData, invoiceData, totals }) => {
   return (
-    <div className="border border-gray-300 p-6 mt-4 min-h-screen w-full bg-white shadow-2xl " id="invoice-preview">
-      <div className="flex justify-between">
-        <div>
-          <h2 className="text-xl font-bold">{companyData.name}</h2>
-          <p>{companyData.address}</p>
-          <p className=" font-medium">GST: {companyData.gst}</p>
+    <div className="invoice-preview-container" id="invoice-preview">
+      
+      {/* Header Section */}
+      <div className="invoice-header">
+        <div className="header-info">
+          <h2 className="company-name">{companyData.name || 'Company Name'}</h2>
+          <p className="company-address">{companyData.address || 'Company Address'}</p>
+          {companyData.gst && <p className="company-gst">GST: {companyData.gst}</p>}
         </div>
-        {companyData.logo && <img src={companyData.logo} alt="Logo" className="w-fit h-16" />}
+        
+        {/* Logo Display */}
+        {companyData.logo && (
+          <div className="logo-wrapper">
+             <img src={companyData.logo} alt="Company Logo" className="company-logo" />
+          </div>
+        )}
       </div>
-      <hr className="my-4" />
-      <div className="flex justify-between">
-        <div className='pl-4 font-medium'>
-          <h3 className='font-bold'>Bill To:</h3>
-          <p>{invoiceData.clientName}</p>
-          <p className='text-slate-700'>{invoiceData.clientAddress}</p>
+
+      <hr className="divider" />
+
+      {/* Bill To & Invoice Meta */}
+      <div className="invoice-details-row">
+        <div className="bill-to-section">
+          <h3 className="bill-to-title">Bill To:</h3>
+          <p className="client-name">{invoiceData.clientName || 'Client Name'}</p>
+          <p className="client-address">{invoiceData.clientAddress || 'Client Address'}</p>
         </div>
-        <div>
-          <p className='font-medium'>Invoice no: {invoiceData.invoiceNumber}</p>
-          <p>Date: {invoiceData.issueDate}</p>
-          <p>Due: {invoiceData.dueDate}</p>
+        
+        <div className="invoice-meta">
+          <p className="invoice-meta-item">
+             <span className="meta-label">Invoice No:</span> {invoiceData.invoiceNumber}
+          </p>
+          <p>
+             <span className="meta-label">Date:</span> {invoiceData.issueDate}
+          </p>
+          {invoiceData.dueDate && (
+             <p><span className="meta-label">Due Date:</span> {invoiceData.dueDate}</p>
+          )}
         </div>
       </div>
-      <table className="w-full mt-4 border-collapse">
+
+      {/* Items Table */}
+      <table className="invoice-table">
         <thead>
-          <tr className="bg-gray-200">
-            <th className="border p-2">Description</th>
-            <th className="border p-2">Qty</th>
-            <th className="border p-2">Price</th>
-            <th className="border p-2">Tax %</th>
-            <th className="border p-2">Amount</th>
+          <tr className="table-header-row">
+            <th className="table-header description-col">Description</th>
+            <th className="table-header text-center">Qty</th>
+            <th className="table-header text-center">Price</th>
+            <th className="table-header text-center">Tax %</th>
+            <th className="table-header text-right">Amount</th>
           </tr>
         </thead>
         <tbody>
-          {invoiceData.items.map((item, idx) => (
-            <tr key={idx}>
-              <td className="border p-2">{item.description}</td>
-              <td className="border p-2 text-center">{item.quantity}</td>
-              <td className="border p-2 text-center">{item.unitPrice}</td>
-              <td className="border p-2 text-center">{item.taxRate}</td>
-              <td className="border p-2 font-bold text-center">{
-                (Number(item.quantity || 0) * Number(item.unitPrice || 0) * ((1 + Number(item.taxRate) / 100))).toFixed(2)
-              }</td>
+          {invoiceData.items.length > 0 ? (
+            invoiceData.items.map((item, idx) => (
+              <tr key={idx}>
+                <td className="table-cell">{item.description}</td>
+                <td className="table-cell text-center">{item.quantity}</td>
+                <td className="table-cell text-center">{item.unitPrice}</td>
+                <td className="table-cell text-center">{item.taxRate}</td>
+                <td className="table-cell text-right font-bold">
+                  {(
+                    Number(item.quantity || 0) * Number(item.unitPrice || 0) * (1 + Number(item.taxRate) / 100)
+                  ).toFixed(2)}
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={5} className="table-cell text-center text-muted" style={{ padding: '2rem' }}>
+                No items added yet.
+              </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
-      <div className="text-right mt-4">
-        <p className="font-bold">Invoice Summary:</p>
-        <p>Subtotal: {totals.subtotal}  </p>
-        <p>Tax: {totals.taxAmount} </p>
-        <p>Discount: {totals.discount} </p>
-        <p className="font-bold text-blue-500 border-b pb-3">Total: {totals.total}</p>
+
+      {/* Summary Section */}
+      <div className="invoice-summary">
+        <div className="summary-row">
+           <span>Subtotal:</span>
+           <span>{totals.subtotal}</span>
+        </div>
+        <div className="summary-row">
+           <span>Tax:</span>
+           <span>{totals.taxAmount}</span>
+        </div>
+        <div className="summary-row">
+           <span>Discount:</span>
+           <span>{totals.discount}</span>
+        </div>
+        <div className="summary-row summary-total">
+           <span>Total:</span>
+           <span>{totals.total}</span>
+        </div>
       </div>
-      {companyData.signature &&
-        <h1 className='font-medium mt-2'>Signature :<img src={companyData.signature} alt="Signature" className="w-32 mt-4" /></h1>}
-      <p className="mt-4 text-slate-500 text-center text-sm"><b className='text-red-400'> </b>{invoiceData.notes}</p>
+
+      {/* Signature & Footer */}
+      <div className="invoice-footer-section">
+        {companyData.signature && (
+          <div className="signature-section">
+            <p className="signature-title">Authorized Signature:</p>
+            <img src={companyData.signature} alt="Signature" className="signature-img" />
+          </div>
+        )}
+
+        {invoiceData.notes && (
+          <div className="invoice-notes">
+             <p>{invoiceData.notes}</p>
+          </div>
+        )}
+      </div>
+      
     </div>
   );
 };

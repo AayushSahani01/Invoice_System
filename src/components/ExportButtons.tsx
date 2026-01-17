@@ -4,7 +4,7 @@ import PptxGenJS from 'pptxgenjs';
 import html2canvas from 'html2canvas';
 import { CompanyData, InvoiceData, Totals } from '../type';
 import { toast } from 'react-hot-toast';
-
+import './ExportButtons.css';
 interface ExportButtonsProps {
   companyData: CompanyData;
   invoiceData: InvoiceData;
