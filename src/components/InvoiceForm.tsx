@@ -1,7 +1,8 @@
-import React from 'react';
-import { useForm, useFieldArray, SubmitHandler } from 'react-hook-form';
+import React, { useEffect } from 'react';
+import { useForm, useFieldArray, useWatch, Control } from 'react-hook-form';
 import { InvoiceData } from '../type';
 import { Trash } from 'lucide-react';
+import './InvoiceForm.css';
 
 interface InvoiceFormProps {
   onChange: (data: InvoiceData) => void;
@@ -9,38 +10,118 @@ interface InvoiceFormProps {
 }
 
 const InvoiceForm: React.FC<InvoiceFormProps> = ({ onChange, invoiceData }) => {
-  const { register, control, handleSubmit } = useForm<InvoiceData>({ defaultValues: invoiceData });
-  const { fields, append, remove } = useFieldArray({ control, name: 'items' });
+  const { register, control, handleSubmit, setValue } = useForm<InvoiceData>({ 
+    defaultValues: invoiceData,
+    mode: 'onChange' // Validate on change
+  });
+  
+  const { fields, append, remove } = useFieldArray({ 
+    control, 
+    name: 'items' 
+  });
 
-  const onSubmit: SubmitHandler<InvoiceData> = (data: InvoiceData) => onChange(data);
+  // WATCH all form values in real-time
+  const watchedValues = useWatch({ control });
+
+  // Sync to parent whenever form changes
+  useEffect(() => {
+    // Merge watched values with base invoiceData to keep ID/Dates intact
+    const mergedData = {
+      ...invoiceData,
+      ...watchedValues,
+      // Ensure items is always an array
+      items: watchedValues.items || invoiceData.items || []
+    };
+    onChange(mergedData as InvoiceData);
+  }, [watchedValues]); // Dependency: runs whenever form changes
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="mb-4">
-      <h2 className="text-xl mb-6 font-bold text-blue-400 font-serif ">Invoice Details</h2>
-      <input {...register('invoiceNumber')} placeholder="Invoice Number" className="block mb-2 p-2 border rounded-sm w-2/3 font-medium uppercase" />
-      <input type="date" {...register('issueDate')} className="block mb-2 p-2 border rounded-sm w-2/3 font-medium" />
-      <input type="date" {...register('dueDate')} className="block mb-2 p-2 border rounded-sm w-2/3 font-medium" />
-      <input {...register('clientName')} placeholder="Client Name" className="block mb-2 p-2 border rounded-sm w-2/3 font-medium capitalize" />
-      <input {...register('clientAddress')} placeholder="Client Address" className="block mb-2 p-2 border rounded-sm w-2/3 font-medium capitalize" />
-      {/* <input {...register('notes')} placeholder="NOTES" className="block mb-2 p-2 border" />
-      <input {...register('terms')} placeholder="TERMS" className="block mb-2 p-2 border" /> */}
+    <form className="invoice-form">
+      <label>Invoice Number</label>
+      <input 
+        {...register('invoiceNumber')} 
+        placeholder="INV-001" 
+        className="invoice-input uppercase" 
+      />
+      
+      <div className="flex-row gap-4" style={{ display:'flex', gap:'1rem' }}>
+        <div style={{ flex:1 }}>
+           <label>Issue Date</label>
+           <input type="date" {...register('issueDate')} className="invoice-input" />
+        </div>
+        <div style={{ flex:1 }}>
+           <label>Due Date</label>
+           <input type="date" {...register('dueDate')} className="invoice-input" />
+        </div>
+      </div>
+      
+      <label>Client Name</label>
+      <input 
+        {...register('clientName')} 
+        placeholder="Client Name" 
+        className="invoice-input capitalize" 
+      />
+      
+      <label>Client Address</label>
+      <input 
+        {...register('clientAddress')} 
+        placeholder="Client Address" 
+        className="invoice-input capitalize" 
+      />
 
-      <h3 className="mt-6 pt-2 border-t border-gray-300 text-xl mb-6 font-bold text-blue-400 font-serif">Add Items Detail's :</h3>
+      <h3 className="section-subtitle">Item Details</h3>
+      
       {fields.map((item, index) => (
-        <div key={item.id} className="flex flex-row mb-4 items-center gap-2">
-          <input {...register(`items.${index}.description`)} placeholder="Add Description" className="mb-2 p-2 border rounded-sm font-medium w-50 capitalize mr-2 flex-1" />
-          <input type="number" {...register(`items.${index}.quantity`)} placeholder="Qty" className="mb-2 p-2 border rounded-sm font-medium capitalize mr-2 flex-1 w-30" />
-          <input type="number" {...register(`items.${index}.unitPrice`)} placeholder="Price" className="mb-2 p-2 border rounded-sm font-medium capitalize mr-2 flex-1 w-24" />
-          <input type="number" {...register(`items.${index}.taxRate`)} placeholder="Tax %" className="mb-2 p-2 border rounded-sm font-medium capitalize mr-2 flex-1 w-20" />
-          {/* <input type="number" {...register(`items.${index}.amount`)} placeholder="Amount" className="p-2 border mr-2 w-24" /> */}
-          <button type="button" onClick={() => remove(index)} className="flex bg-red-500 py-2 px-3 items-center mb-2 p-2 rounded-sm font-medium text-white cursor-pointer">
-          Remove<Trash className='w-6 h-6'/></button>
+        <div key={item.id} className="item-row">
+          <input 
+            {...register(`items.${index}.description`)} 
+            placeholder="Desc" 
+            className="item-input description-input" 
+          />
+          <input 
+            type="number" 
+            {...register(`items.${index}.quantity`)} 
+            placeholder="Qty" 
+            className="item-input qty-input" 
+          />
+          <input 
+            type="number" 
+            {...register(`items.${index}.unitPrice`)} 
+            placeholder="Price" 
+            className="item-input price-input" 
+          />
+          <input 
+            type="number" 
+            {...register(`items.${index}.taxRate`)} 
+            placeholder="Tax" 
+            className="item-input tax-input" 
+          />
+          
+          <button 
+            type="button" 
+            onClick={() => remove(index)} 
+            className="remove-btn"
+          >
+            <Trash size={16} />
+          </button>
         </div>
       ))}
-      <button type="button" onClick={() => append(invoiceData.items[0] || { description: '', quantity: '', unitPrice: '', taxRate:'', amount: ''})} className="bg-violet-400 text-white p-3 mb-4 w-fit md:w-1/3 rounded-xl font-semibold justify-center items-center text-center cursor-pointer hover:bg-violet-500 text-lg">Add Items More</button>
 
-      <textarea {...register('notes')} placeholder="NOTES eg: Thank you for your business" className="mb-2 p-2 border rounded-sm font-light mr-2 flex-1 w-full" />
-      <button type="submit" className="bg-blue-500 text-white p-3 mb-2 w-fit md:w-1/3 rounded-xl font-bold justify-center items-center text-center cursor-pointer hover:bg-blue-600">Updated Invoice</button>
+      <button 
+  type="button" 
+  // Add "as any" at the end of the object
+  onClick={() => append({ description: '', quantity: 1, unitPrice: 0, taxRate: 0, amount: 0 } as any)} 
+  className="add-item-btn"
+>
+  + Add Item
+</button>
+
+      <label style={{ marginTop: '1rem' }}>Notes</label>
+      <textarea 
+        {...register('notes')} 
+        placeholder="Payment terms, bank details, etc." 
+        className="notes-textarea" 
+      />
     </form>
   );
 };
