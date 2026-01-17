@@ -1,0 +1,166 @@
+/* InvoiceBuilder.css */
+
+/* --- Design Tokens (Tetrisly Style) --- */
+:root {
+  --color-bg-left: #FFFFFF;
+  --color-bg-right: #F3F4F6; /* Light gray-blue background */
+  --color-text-main: #111827; /* Dark Charcoal */
+  --color-text-sub: #6B7280;  /* Muted Gray */
+  --color-primary: #4F46E5;   /* Indigo/Blue */
+  --color-primary-hover: #4338CA;
+  --color-border: #E5E7EB;
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* --- Layout Structure --- */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: var(--font-family);
+  overflow: hidden; /* Lock the outer window */
+}
+
+.tetrisly-container {
+  display: flex;
+  height: 100vh; /* Full viewport height */
+  width: 100vw;
+  background-color: var(--color-bg-left);
+}
+
+/* --- LEFT PANEL: Editor --- */
+.panel-editor {
+  width: 45%; /* Slightly narrower for form focus */
+  min-width: 400px;
+  background-color: var(--color-bg-left);
+  height: 100%;
+  overflow-y: auto; /* ENABLE SCROLLING HERE */
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  justify-content: center;
+}
+
+.editor-content {
+  width: 100%;
+  max-width: 520px; /* Constrain width for readability */
+  padding: 4rem 2rem;
+}
+
+/* Typography */
+.brand-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.025em;
+}
+
+.brand-subtitle {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--color-text-sub);
+  margin-bottom: 3rem;
+}
+
+.section-label {
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-text-sub);
+  letter-spacing: 0.05em;
+  margin-bottom: 1.5rem;
+}
+
+.form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.divider-line {
+  height: 1px;
+  background-color: var(--color-border);
+  margin: 1rem 0;
+}
+
+/* --- RIGHT PANEL: Preview --- */
+.panel-preview {
+  width: 55%;
+  background-color: var(--color-bg-right);
+  height: 100%;
+  overflow-y: auto; /* ENABLE SCROLLING HERE */
+  display: flex;
+  justify-content: center;
+  padding: 3rem;
+  box-sizing: border-box;
+}
+
+.preview-centering-wrapper {
+  width: 100%;
+  max-width: 800px; /* A4-ish width */
+  margin-top: 1rem;
+  margin-bottom: 4rem;
+}
+
+.preview-card-frame {
+  background: white;
+  border-radius: 12px;
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.02);
+}
+
+.preview-card-header {
+  background: #FAFAFA;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+}
+
+.preview-badge {
+  background: #EEF2FF;
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 1024px) {
+  .tetrisly-container {
+    flex-direction: column;
+    height: auto;
+    overflow: auto; /* Unlock window scroll on mobile */
+  }
+
+  .panel-editor, .panel-preview {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .panel-editor {
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+  }
+}
+
+/* InvoiceBuilder.css */
+
+/* CHANGE THIS RULE: */
+.tetrisly-container {
+  display: flex;
+  height: 100%; /* IMPORTANT: Changed from 100vh to 100% to fit inside App layout */
+  width: 100%;
+  background-color: var(--color-bg-left);
+}
+
+/* Ensure panels take full height of the container */
+.panel-editor, .panel-preview {
+    height: 100%;
+}
